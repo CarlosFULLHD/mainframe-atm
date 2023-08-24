@@ -1,11 +1,12 @@
-package bo.edu.ucb.sis213.gui;
+package bo.edu.ucb.sis213.view;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import bo.edu.ucb.sis213.ATM;
-import bo.edu.ucb.sis213.DatabaseManager;
+
+import bo.edu.ucb.sis213.bl.ATM;
+import bo.edu.ucb.sis213.dao.DatabaseManager;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -21,7 +22,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 
-public class Bienvenido extends JFrame {
+public class Welcomeview extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField txtUsuariox;
@@ -35,29 +36,21 @@ public class Bienvenido extends JFrame {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				DatabaseManager dbManager = new DatabaseManager();
-				Connection connection = null;
 
-				try {
-					connection = dbManager.getConnection();
-					System.out.println("conectado");
-				} catch (SQLException ex) {
-					System.err.println("No se puede conectar a la Base de Datos");
-					ex.printStackTrace();
-					System.exit(1);
-				}
-
-				ATM atm = new ATM(connection);
-				Bienvenido frame = new Bienvenido(atm, connection);
-				frame.setVisible(true);
 			}
 		});
+
+	}
+
+	private void mostrarErrorInicioSesion() {
+		JOptionPane.showMessageDialog(contentPane, "Usuario o PIN incorrectos/no existentes.",
+				"Error de Inicio de Sesión", JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**
 	 * Create the frame.
 	 */
-	public Bienvenido(ATM atm, Connection connection) {
+	public Welcomeview(ATM atm, Connection connection) {
 		this.atm = atm;
 		this.connection = connection;
 
@@ -134,23 +127,17 @@ public class Bienvenido extends JFrame {
 				String alias = txtUsuariox.getText();
 				char[] pinChars = passwordField.getPassword();
 				String pinStr = new String(pinChars);
-
-				try {
-					int pin = Integer.parseInt(pinStr);
-
-					if (atm.validarPIN(alias, pin)) {
-						System.out.println("Inicio de sesión correcto.");
-						ATMUsuario atmUsuarioFrame = new ATMUsuario(atm);
-						atmUsuarioFrame.setVisible(true);
-						setVisible(false);
-					} else {
-						JOptionPane.showMessageDialog(contentPane, "Usuario o PIN incorrectos/no existentes.",
-								"Error de Inicio de Sesión", JOptionPane.ERROR_MESSAGE);
-					}
-				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(contentPane, "Usuario o PIN incorrectos/no existentes.",
-							"Error de Inicio de Sesión", JOptionPane.ERROR_MESSAGE);
+				int pin = Integer.parseInt(pinStr);
+				// Manda a logica de negocio
+				if (atm.validarPIN(alias, pin)) {
+					System.out.println("Inicio de sesión correcto.");
+					Menuview atmUsuarioFrame = new Menuview(atm);
+					atmUsuarioFrame.setVisible(true);
+					setVisible(false);
+				} else {
+					mostrarErrorInicioSesion();
 				}
+
 			}
 		});
 
@@ -159,6 +146,7 @@ public class Bienvenido extends JFrame {
 				System.exit(0); // Cierra la aplicación
 			}
 		});
+		// Centrea la ventana
 		setLocationRelativeTo(null);
 	}
 

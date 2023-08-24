@@ -1,4 +1,4 @@
-package bo.edu.ucb.sis213.gui;
+package bo.edu.ucb.sis213.view;
 
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -14,20 +14,27 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import bo.edu.ucb.sis213.ATM;
 
-public class ATMUsuario extends JFrame {
+import bo.edu.ucb.sis213.bl.ATM;
+
+public class Menuview extends JFrame {
 
 	private JPanel contentPane;
 	private static ATM atm;
 	private Connection connection;
 	private JLabel lblSaldoActual;
+	private JButton btnCerrarSesion;
+	private JButton btnCambiarDePin;
+	private JButton btnRealizarDeposito;
+	private JButton btnRealizarRetiro;
+	private JButton btnConsultarSaldo;
+	private JButton btnSalir;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ATMUsuario frame = new ATMUsuario(atm);
+					Menuview frame = new Menuview(atm);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -36,7 +43,7 @@ public class ATMUsuario extends JFrame {
 		});
 	}
 
-	public ATMUsuario(ATM atm) {
+	public Menuview(ATM atm) {
 
 		this.atm = atm;
 		this.connection = connection;
@@ -117,7 +124,7 @@ public class ATMUsuario extends JFrame {
 		btnRealizarDeposito.setBounds(300, 177, 205, 52);
 		contentPane.add(btnRealizarDeposito);
 
-		JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+		btnCerrarSesion = new JButton("Cerrar Sesión");
 		btnCerrarSesion.setToolTipText("Click para cerrar sesión y volver a la ventana de Bienvenido");
 		btnCerrarSesion.setForeground(Color.BLACK);
 		btnCerrarSesion.setFont(new Font("Courier 10 Pitch", Font.BOLD, 14));
@@ -125,122 +132,146 @@ public class ATMUsuario extends JFrame {
 		btnCerrarSesion.setBounds(53, 250, 179, 52);
 		contentPane.add(btnCerrarSesion);
 
+		setupButtonActions();
+
+		setLocationRelativeTo(null);
+	}
+
+	private void setupButtonActions() {
 		btnCerrarSesion.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Bienvenido bienvenidoFrame = new Bienvenido(atm, connection);
-				bienvenidoFrame.setVisible(true);
-				dispose(); // Cierra la ventana actual
+				openWelcomeView();
 			}
 		});
 
 		btnSalir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0); // Cierra la aplicación
+				System.exit(0);
 			}
 		});
+
 		btnConsultarSaldo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double saldoActual = atm.getSaldo(); // Obtén el saldo actual del ATM
-				JOptionPane.showMessageDialog(contentPane, "Su saldo actual es: $" + saldoActual, "Consulta de Saldo",
-						JOptionPane.INFORMATION_MESSAGE);
+				showCurrentBalance();
 			}
 		});
 
 		btnRealizarRetiro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					double saldoActual = atm.getSaldo();
-					String montoStr = JOptionPane.showInputDialog(contentPane,
-							"Su saldo actual es: $" + saldoActual + "\nIngrese monto a retirar:", "Realizar Retiro",
-							JOptionPane.PLAIN_MESSAGE);
-					if (montoStr != null) {
-						double monto = Double.parseDouble(montoStr);
-						if (monto > 0) {
-							if (monto <= atm.getSaldo()) {
-								atm.realizarRetiro(monto);
-								JOptionPane.showMessageDialog(contentPane,
-										"Retiro realizado con éxito. Su nuevo saldo es: $" + atm.getSaldo(),
-										"Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-							} else {
-								JOptionPane.showMessageDialog(contentPane, "Saldo insuficiente para la operación.",
-										"Error", JOptionPane.ERROR_MESSAGE);
-							}
-						} else {
-							JOptionPane.showMessageDialog(contentPane, "Ingrese una cantidad positiva por favor.",
-									"Error", JOptionPane.ERROR_MESSAGE);
-						}
-					}
-				} catch (NumberFormatException | SQLException ex) {
-					JOptionPane.showMessageDialog(contentPane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				}
+				performWithdrawal();
 			}
 		});
 
 		btnRealizarDeposito.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					double saldoActual = atm.getSaldo();
-					String montoStr = JOptionPane.showInputDialog(contentPane,
-							"Su saldo actual es: $" + saldoActual + "\nIngrese monto a depositar:", "Realizar Depósito",
-							JOptionPane.PLAIN_MESSAGE);
-					if (montoStr != null) {
-						double monto = Double.parseDouble(montoStr);
-						if (monto > 0) {
-							atm.realizarDeposito(monto);
-							JOptionPane.showMessageDialog(contentPane,
-									"Depósito realizado con éxito. Su nuevo saldo es: $" + atm.saldo,
-									"Operación Exitosa",
-									JOptionPane.INFORMATION_MESSAGE);
-						} else {
-							JOptionPane.showMessageDialog(contentPane, "Ingrese una cantidad positiva por favor.",
-									"Error",
-									JOptionPane.ERROR_MESSAGE);
-						}
-					}
-				} catch (NumberFormatException | SQLException ex) {
-					JOptionPane.showMessageDialog(contentPane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				}
+				performDeposit();
 			}
 		});
 
 		btnCambiarDePin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					int pinIngresado = Integer
-							.parseInt(JOptionPane.showInputDialog(contentPane, "Ingrese su PIN actual:",
-									"Cambiar PIN", JOptionPane.PLAIN_MESSAGE));
-
-					// Obtener el PIN actual desde la base de datos
-					int pinAlmacenado = atm.obtenerPinDesdeDB();
-					System.out.println("PIN actual ingresado: " + pinIngresado);
-					System.out.println("PIN actual almacenado: " + pinAlmacenado);
-
-					if (pinIngresado != pinAlmacenado) {
-						JOptionPane.showMessageDialog(contentPane, "El PIN actual ingresado es incorrecto.", "Error",
-								JOptionPane.ERROR_MESSAGE);
-						return; // Salir del ActionListener si el PIN actual es incorrecto
-					}
-
-					int nuevoPin = Integer.parseInt(JOptionPane.showInputDialog(contentPane, "Ingrese su nuevo PIN:",
-							"Cambiar PIN", JOptionPane.PLAIN_MESSAGE));
-					int confirmarPin = Integer.parseInt(JOptionPane.showInputDialog(contentPane,
-							"Confirme su nuevo PIN:", "Cambiar PIN", JOptionPane.PLAIN_MESSAGE));
-
-					if (nuevoPin == confirmarPin) { // Compara si el PIN nuevo y el PIN confirmado son iguales
-						atm.cambiarPIN(pinIngresado, nuevoPin, confirmarPin);
-						JOptionPane.showMessageDialog(contentPane, "PIN actualizado con éxito.", "Operación Exitosa",
-								JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						JOptionPane.showMessageDialog(contentPane, "Los PINs no coinciden.", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				} catch (NumberFormatException | SQLException ex) {
-					JOptionPane.showMessageDialog(contentPane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				}
+				changePIN();
 			}
 		});
-
-		setLocationRelativeTo(null);
 	}
 
+	private void openWelcomeView() {
+		Welcomeview bienvenidoFrame = new Welcomeview(atm, connection);
+		bienvenidoFrame.setVisible(true);
+		dispose();
+	}
+
+	private void showCurrentBalance() {
+		double saldoActual = atm.getSaldo();
+		JOptionPane.showMessageDialog(contentPane, "Su saldo actual es: $" + saldoActual, "Consulta de Saldo",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	private void performWithdrawal() {
+		try {
+			double saldoActual = atm.getSaldo();
+			String montoStr = JOptionPane.showInputDialog(contentPane,
+					"Su saldo actual es: $" + saldoActual + "\nIngrese monto a retirar:", "Realizar Retiro",
+					JOptionPane.PLAIN_MESSAGE);
+			if (montoStr != null) {
+				double monto = Double.parseDouble(montoStr);
+				if (monto > 0) {
+					if (monto <= atm.getSaldo()) {
+						atm.realizarRetiro(monto);
+						JOptionPane.showMessageDialog(contentPane,
+								"Retiro realizado con éxito. Su nuevo saldo es: $" + atm.getSaldo(),
+								"Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(contentPane, "Saldo insuficiente para la operación.",
+								"Error", JOptionPane.ERROR_MESSAGE);
+					}
+				} else {
+					JOptionPane.showMessageDialog(contentPane, "Ingrese una cantidad positiva por favor.",
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		} catch (NumberFormatException | SQLException ex) {
+			JOptionPane.showMessageDialog(contentPane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void performDeposit() {
+		try {
+			double saldoActual = atm.getSaldo();
+			String montoStr = JOptionPane.showInputDialog(contentPane,
+					"Su saldo actual es: $" + saldoActual + "\nIngrese monto a depositar:", "Realizar Depósito",
+					JOptionPane.PLAIN_MESSAGE);
+			if (montoStr != null) {
+				double monto = Double.parseDouble(montoStr);
+				if (monto > 0) {
+					atm.realizarDeposito(monto);
+					JOptionPane.showMessageDialog(contentPane,
+							"Depósito realizado con éxito. Su nuevo saldo es: $" + atm.saldo,
+							"Operación Exitosa",
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(contentPane, "Ingrese una cantidad positiva por favor.",
+							"Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		} catch (NumberFormatException | SQLException ex) {
+			JOptionPane.showMessageDialog(contentPane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void changePIN() {
+		try {
+			int pinIngresado = Integer
+					.parseInt(JOptionPane.showInputDialog(contentPane, "Ingrese su PIN actual:",
+							"Cambiar PIN", JOptionPane.PLAIN_MESSAGE));
+
+			// Obtener el PIN actual desde la base de datos
+			int pinAlmacenado = atm.obtenerPinDesdeDB();
+			System.out.println("PIN actual ingresado: " + pinIngresado);
+			System.out.println("PIN actual almacenado: " + pinAlmacenado);
+
+			if (pinIngresado != pinAlmacenado) {
+				JOptionPane.showMessageDialog(contentPane, "El PIN actual ingresado es incorrecto.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return; // Salir del ActionListener si el PIN actual es incorrecto
+			}
+
+			int nuevoPin = Integer.parseInt(JOptionPane.showInputDialog(contentPane, "Ingrese su nuevo PIN:",
+					"Cambiar PIN", JOptionPane.PLAIN_MESSAGE));
+			int confirmarPin = Integer.parseInt(JOptionPane.showInputDialog(contentPane,
+					"Confirme su nuevo PIN:", "Cambiar PIN", JOptionPane.PLAIN_MESSAGE));
+
+			if (nuevoPin == confirmarPin) { // Compara si el PIN nuevo y el PIN confirmado son iguales
+				atm.cambiarPIN(pinIngresado, nuevoPin, confirmarPin);
+				JOptionPane.showMessageDialog(contentPane, "PIN actualizado con éxito.", "Operación Exitosa",
+						JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(contentPane, "Los PINs no coinciden.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (NumberFormatException | SQLException ex) {
+			JOptionPane.showMessageDialog(contentPane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
 }

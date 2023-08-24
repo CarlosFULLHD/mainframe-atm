@@ -1,11 +1,14 @@
 package bo.edu.ucb.sis213;
 
-import bo.edu.ucb.sis213.gui.ATMUsuario;
-
 import javax.swing.SwingUtilities;
+
+import bo.edu.ucb.sis213.bl.ATM;
+import bo.edu.ucb.sis213.dao.DatabaseManager;
+import bo.edu.ucb.sis213.view.Menuview;
+import bo.edu.ucb.sis213.view.Welcomeview;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-import bo.edu.ucb.sis213.gui.Bienvenido;
 
 public class Main {
     public static void main(String[] args) {
@@ -22,7 +25,7 @@ public class Main {
             System.exit(1);
         }
         ATM atm = new ATM(connection);
-        Bienvenido bienvenidoFrame = new Bienvenido(atm, connection);
+        Welcomeview bienvenidoFrame = new Welcomeview(atm, connection);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 bienvenidoFrame.setLocationRelativeTo(null); // Centrar en la pantalla
