@@ -4,8 +4,10 @@ import javax.swing.SwingUtilities;
 
 import bo.edu.ucb.sis213.bl.ATM;
 import bo.edu.ucb.sis213.dao.DatabaseManager;
-import bo.edu.ucb.sis213.view.Menuview;
-import bo.edu.ucb.sis213.view.Welcomeview;
+
+import bo.edu.ucb.sis213.view.ATMUsuario;
+import bo.edu.ucb.sis213.view.Bienvenido;
+
 
 import java.sql.Connection;
 import java.sql.SQLException;
