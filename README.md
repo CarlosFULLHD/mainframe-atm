@@ -156,7 +156,7 @@ Bienvenida:
 ![Bienvenda](mainframe-atm/images_figma/BienvenidaBanco.png)
 
 Interfaz iniciado sesion
-![Interfaz inicial](mainframe-atm/images_figma/BienvenidaUsuario.png)
+![Interfaz inicial](mainframe-atm/images_figma/Bienvenido.png)
 Deposito de dinero
 ![Deposito](/ainframe-atm/images_figma/RealizarDeposito.png)
 Retiro de dinero

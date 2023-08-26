@@ -4,8 +4,10 @@ import javax.swing.SwingUtilities;
 
 import bo.edu.ucb.sis213.bl.ATM;
 import bo.edu.ucb.sis213.dao.DatabaseManager;
+
 import bo.edu.ucb.sis213.view.ATMUsuario;
 import bo.edu.ucb.sis213.view.Bienvenido;
+
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,7 +27,7 @@ public class Main {
             System.exit(1);
         }
         ATM atm = new ATM(connection);
-        Bienvenido bienvenidoFrame = new Bienvenido(atm, connection);
+        Welcomeview bienvenidoFrame = new Welcomeview(atm, connection);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 bienvenidoFrame.setLocationRelativeTo(null); // Centrar en la pantalla
